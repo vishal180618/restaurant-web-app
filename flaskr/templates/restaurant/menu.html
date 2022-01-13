@@ -2,6 +2,9 @@
 
 {% block header %}
   <h1>{% block title %}Menu Items{% endblock %}</h1>
+    {% if order %}
+        <a href="{{ url_for('restaurant.place_order') }}"><h1>Place Order</h1></a>
+    {% endif %}
 
 {% endblock %}
 

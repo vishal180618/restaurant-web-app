@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, url_for
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -22,9 +22,10 @@ def see_menu(restaurant_name):
     dishes = (
         db.collection("menu").where("restaurant_id", "==", restaurant_name).stream()
     )
-
+    if session.get("cart_items"):
+        order = True
     return render_template(
-        "restaurant/menu.html", dishes=dishes, restaurant_name=restaurant_name
+        "restaurant/menu.html", dishes=dishes, restaurant_name=restaurant_name, order=True,
     )
 
 
@@ -37,6 +38,20 @@ def add_to_cart(dish):
     session.modified = True
     return redirect(request.args.get("next"))
 
-
+@bp.route("/order")
 def place_order():
-    pass
+    db = get_db()
+    import ipdb;ipdb.set_trace()
+    order = {
+        "user_id": 0,
+        "total_price" : 0,
+        "items": []
+    }
+    for dish in db.collection("menu").where('id', 'in', session["cart_items"]).stream():
+        order['total_price'] += dish.price
+        order['items'].append(dish.to_dict())
+    db.collection("orders").add(order)
+    return redirect(url_for('restaurant.list_restaurants'))
+
+
+
