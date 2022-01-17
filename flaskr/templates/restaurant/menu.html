@@ -15,7 +15,7 @@
         <div>
           <h1>{{ dish.get('name') }}..................{{ dish.get('price') }}</h1>
         </div>
-        <a class="action" href="{{ url_for('restaurant.add_to_cart', dish=dish.id) }}?next={{ url_for('restaurant.see_menu', restaurant_name=restaurant_name) }}">Add to Cart</a>
+        <a class="action" href="{{ url_for('restaurant.add_to_cart', restaurant_id=restaurant_id,dish_id=dish.id) }}?next={{ url_for('restaurant.see_menu', restaurant_id=restaurant_id) }}">Add to Cart</a>
       </header>
     </article>
     {% if not loop.last %}

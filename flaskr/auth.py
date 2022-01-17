@@ -22,7 +22,7 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
-            return redirect(url_for("auth.login"))
+            return redirect(url_for("auth.login") + f"?next={request.path}")
 
         return view(**kwargs)
 
@@ -38,7 +38,7 @@ def load_logged_in_user():
         g.user = None
     else:
         db = get_db()
-        g.user = db.collection('users').document(user_id).get()
+        g.user = db.collection("users").document(user_id).get()
         # g.user = (
         #     get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
         # )
@@ -62,14 +62,16 @@ def register():
             error = "Username is required."
         elif not password:
             error = "Password is required."
-        users = db.collection('users')
-        user = users.document('username').get()
+        users = db.collection("users")
+        user = users.document("username").get()
         if error is None and (not user.exists):
             try:
-                users.document(username).set({
-                    'username':username,
-                    'password':generate_password_hash(password),
-                })
+                users.document(username).set(
+                    {
+                        "username": username,
+                        "password": generate_password_hash(password),
+                    }
+                )
             except db.IntegrityError:
                 # The username was already taken, which caused the
                 # commit to fail. Show a validation error.
@@ -91,7 +93,7 @@ def login():
         password = request.form["password"]
         db = get_db()
         error = None
-        users = db.collection('users')
+        users = db.collection("users")
         try:
             user = users.document(username).get()
         except Exception:
@@ -99,14 +101,14 @@ def login():
 
         if not user.exists:
             error = "Incorrect username."
-        elif not check_password_hash(user.get('password'), password):
+        elif not check_password_hash(user.get("password"), password):
             error = "Incorrect password."
 
         if error is None:
             # store the user id in a new session and return to the index
             session.clear()
             session["user_id"] = user.id
-            return redirect(url_for("index"))
+            return redirect(request.args.get("next"))
 
         flash(error)
 
