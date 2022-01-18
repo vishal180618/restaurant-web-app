@@ -7,4 +7,5 @@ COPY . ./
 #CMD ["export", "FLASK_ENV=development"]
 ENV FLASK_APP=flaskr
 ENV FLASK_ENV=development
-CMD ['flask', 'run', '--host=0.0.0.0']
+#CMD ['flask', 'run', '--host=0.0.0.0']
+CMD exec flask run --host=0.0.0.0
